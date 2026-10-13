@@ -17,4 +17,9 @@ describe('Yandex release archive', () => {
     expect(() => validateEntries([index, index])).toThrow();
     expect(() => validateEntries([{ ...index, size: -1 }])).toThrow();
   });
+  it('allows only the runtime actor metadata JSON, never arbitrary reports or debug data',()=>{
+    expect(validateEntries([index,{name:'assets/characters/jade.json',size:100}])).toBe(200);
+    expect(()=>validateEntries([index,{name:'assets/debug.json',size:100}])).toThrow();
+    expect(()=>validateEntries([index,{name:'assets/characters/prompts.json',size:100}])).toThrow();
+  });
 });

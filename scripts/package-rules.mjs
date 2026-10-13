@@ -7,7 +7,8 @@ export function validateEntries(entries) {
   for (const entry of entries) {
     const { name } = entry;
     if (!/^[A-Za-z0-9_./-]+$/.test(name) || name.startsWith('/') || name.split('/').some(part => part === '..' || !part)) throw new Error(`Invalid file name: ${name}`);
-    if (name.startsWith('dist/') || !allowed.test(name)) throw new Error(`Unexpected release file: ${name}`);
+    const atlasMetadata=/^assets\/(characters\/(ember|jade|moon)|enemies\/(sentinel|moth|oni))\.json$/.test(name);
+    if (name.startsWith('dist/') || (!allowed.test(name)&&!atlasMetadata)) throw new Error(`Unexpected release file: ${name}`);
     if (names.has(name)) throw new Error(`Duplicate file: ${name}`);
     names.add(name);
     if (!Number.isSafeInteger(entry.size) || entry.size < 0) throw new Error(`Invalid size: ${name}`);

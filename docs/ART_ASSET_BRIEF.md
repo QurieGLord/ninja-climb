@@ -1,58 +1,47 @@
-# Оригинальный арт Ninja Climb 2.0
+# Оригинальный арт Ninja Climb 2.1
 
-Инструмент: **встроенный image_gen**, 15 исходных PNG. Генерация доступна; в игру подключены настоящие растровые кадры, а не технический визуализатор. Исходники находятся в `docs/art-source/`, финальные ресурсы — в `public/assets/`. CLI/API fallback не использовался.
+Инструмент: встроенный **image_gen**, без CLI/API fallback. Финальные рисунки и полные промпты: `docs/art-source/v2/` / `prompts.json`. Использованы исключительно наши оригинальные костюмы/существа 2.0 и новый style proof, не коммерческие игровые модели. Старый отчёт — `ART_ASSET_BRIEF_V2.0.md`.
 
-## Модель и стиль
+## Стиль и проверка направления
 
-Оригинальный атлетичный разведчик: индиговая ткань, маска, светлая повязка, тёмные собранные волосы, асимметричная бамбуковая защита, длинный раздвоенный алый шарф, тонкая катана с бронзовой гардой. Рисованная тушь и cel-живопись, складки ткани, тёплая обводка света и прохладные тени. Пропорции и силуэт отличаются от коммерческих референсов.
+Первый proof был отклонён: он сохранил маленькую голову и реалистичные складки. Второй выполнен в упрощённой гладкой 2D-стилистике с угловатыми цветовыми плоскостями и мягкой cel-тенью. Более крупная голова, компактный корпус, короткие выразительные конечности, ясные кисти/ступни. Это атлетичный взрослый герой с умеренно чиби-подобными пропорциями, не ребёнок.
 
-Костюмы: ember — исходный алый шарф/бамбук; jade — капюшон, нефритовая одежда, короткая светлая накидка и деревянные наручи; moon — светлые полы, жёлтый шарф, серебряные пластины и лунная заколка. Одежда действительно перерисована, без изменения экономики.
+Dev-сценарий `scripts/style-proof.mjs` показывает пять действий, противника, крышу/камень и два слоя в 480×800. Проверены силуэт, контур, читаемость на светлом/тёмном, реальный масштаб. Скриншоты `screenshots/v2-visual-pass/style-proof*.png`; сценарий находится вне `src/public`, не включается в release. Более плотные деревья теста заменены краевыми финальными слоями.
 
-## Подключённые кадры
+## Подключённые последовательности
 
-| Объект | Последовательности | Кадры | Runtime |
-| --- | --- | --- | --- |
-| Каждый из 3 героев | idle, run, jump, rise, fall, land, cling, slide, wall-jump, dash, attack, hurt, death | 13 × 4 = 52 | characters/{id}.png + {id}-combat.png |
-| Теневой страж | idle, patrol, windup, slash, recover, hurt, death | 7 × 4 = 28 | enemies/sentinel.png |
-| Бумажный дух | idle wingbeat, fly, windup, dive, recover, hurt, defeat | 7 × 4 = 28 | enemies/moth.png |
-| Страж грозы | idle, move, windup, cleave, vulnerable recover, hurt, defeat | 7 × 4 = 28 | enemies/oni.png |
+| Actor | Действия | Уникальные рисунки |
+|---|---|---:|
+| Ember / Jade / Moon | idle, run, jump, rise, fall, land, cling, slide, wall-jump, dash, katana, hurt, death | 13 × 8 каждый = 312 |
+| Sentinel | idle, move, windup, attack, recover, hurt, dying | 7 × 8 = 56 |
+| Moth | idle wingbeat, fly, coil, dive, recover, recoil, folded defeat | 7 × 7 = 49 |
+| Oni | idle, stomp, overhead windup, cleave, tired recover, recoil, collapse | 7 × 7 = 49 |
+| **Итого** | | **466** |
 
-Всего **240 кадров**, девять страниц, четыре колонки на страницу, ячейка **384×256**. Максимальная страница **1536×2048**, прозрачный alpha, опорная точка **(192, 235)**. Первые восемь действий героя на основной странице, остальные пять — на combat. Именованные анимации настраиваются в `src/rendering/animation.ts`. Атласы проверяются на непустоту, прозрачность и уникальность кадров; метаданные/хэши — в `ART_FRAME_AUDIT.json`.
+Сгенерированные листы врагов фактически имеют 8/7/7 колонок. Подготовка учитывает реальную раскладку; отсутствующие кадры не заменяются повтором. Для стража дополнительно создан самостоятельный 8-кадровый hurt, поскольку основной лист объединил его реакцию со смертью.
 
-Для длинных действий дополнительно созданы отдельные исходные 4×4 листы: отталкивание, dash, катана, смерть героя и подготовка/удар/восстановление/поражение босса. Это исправляет недостатки первоначальной плотной сетки, где оружие пересекало номинальные границы ячейки.
+По замечанию пользователя отдельно перерисован 8-кадровый патруль стража: контакт → принятие веса → проходная поза → шаг другой ногой. Первый корректирующий лист ещё повторял порядок ног во второй половине; он пересмотрен до подключения. Новый `sentinel-walk.png` заменяет старые move-кадры без увеличения счётчика и без лишних поз в runtime. Патруль проигрывается при 8 FPS, физическая скорость прежняя. Тест пикселей проверяет две контактные и две проходные фазы с разным количеством опорных стоп, а видео настоящего patrol проверено отдельно. Промпты — `sentinel-walk-prompts.json`.
 
-Подготовка использует alpha-aware разделение силуэтов, общую шкалу на лист и единую опору. Нарезка не создаёт движений, не вращает статичную фигуру вместо кадров и не дорисовывает конечности. Сохранены исходные рисунки. Смысловая оценка поз дополнительно проводится в игре; автоматические хэши сами по себе не доказывают художественное качество.
+Ember: индиго, алый раздвоенный шарф, светлая повязка и бамбук. Jade: зелёный капюшон, короткая ivory-накидка, sage-шарф и деревянные наручи. Moon: разрезные светлые полы, охристый шарф, серебряная защита и лунная заколка. Сохраняются цены 0/80/160 и ID. Различия нарисованы в одежде и аксессуарах, не через tint.
 
-## Окружение и эффекты
+## Формат, опоры, воспроизведение
 
-Три отдельные картины: небесные скалы и облачный монастырь; холодная лунная бамбуковая долина/водопады; обсидиановый лавовый каньон с разрушенными воротами. В runtime они оптимизированы до 720×1200 WebP. Переход между биомами плавный; туман/частицы движутся отдельными слоями.
+Шесть JSON-hash alpha-trim атласов, ширина 1024, высота <2048. Логический кадр 256×160 с опорой (128,146); прозрачные поля не занимают место в PNG. Каждая поза сохраняет sourceSize/spriteSourceSize; имена `action-index`. Суммарно 18,17 МиБ RGBA для шести страниц (раньше около 108 МиБ).
 
-Восемь нарисованных объектов окружения: мшистый уступ, треснувшая терракота, парящая механическая опора, запирающая балка, нефритовая стена, электрическая стена, вулканическая колонна и площадка арены. `assets:prepare` определяет точку контакта с нарисованной верхней поверхностью и сохраняет её в `src/data/terrain.ts`.
+Персонаж в игре около 90 логических пикселей в стойке. Меню требует более крупного изображения, поэтому имеет отдельные 180-пиксельные idle-кадры 1280×448 (2,19 МиБ на выбранный костюм). Превью магазина 220 пикселей по высоте, не загружает полноразмерные атласы. Полные ресурсы загружаются только по выбору; при смене другие костюмы освобождаются. Menu-idle повторно использует те же восемь нарисованных поз, не считается дополнительными уникальными кадрами.
 
-Программны только небольшие FX: искры, пыль, мягкий туман, электрическая линия, короткий направленный след катаны, полосы телеграфа и UI. Остаточные силуэты dash используют текущие реальные кадры персонажа. Босс показывает подготовку телом/оружием и индикатором заряда, а восстановление — отдельной анимацией и надписью окна.
+Idle выровнен по точке между стопами, а не плотности торса: это устранило исходный дрейф 4,5–11 пикселей. В обоих масштабах автоматическая проверка ограничивает дрейф стоп одним пикселем. В лобби один общий IdleClock (7 поз/с, 8 кадров) для всех обликов, без сброса фазы при выборе и без догоняния времени после паузы.
 
-## Итоговый набор промптов для воспроизведения
+Loop FPS: idle 7, run 14, rise/fall 10, cling 8, slide 10. Для коротких jump/land/wall-jump/dash/attack/hurt/death зарегистрированы именованные Phaser-анимации, но видимая поза выбирается по фазе существующего физического таймера. Это сохраняет 0,15 с рывка, 0,3 с удара, 0,09 с приземления и 0,6 с смерти. Короткое действие может показать меньше восьми поз на 60-Гц экране; исходные промежуточные рисунки остаются уникальными. Idle не проигрывается со скоростью рендера.
 
-Каждый пункт — отдельный запрос встроенному imagegen. Для прозрачных ресурсов используется `transparent_background: true`. В качестве identity/costume reference применяются только оригинальные генерации предыдущих шагов, не изображения Mini Ninjas.
+## Поверхности и мир
 
-1. **model.png** — Original 2D side-view ninja scout, layered indigo cloth, asymmetric pale bamboo shoulder protection, leather wraps/tabi, vermilion split scarf, ivory brow band and bronze-guard katana. Crisp hand-painted ink cel style, warm upper-left rim light, cool teal shadows. Three separated full-body identity views: right side sheathed; front three-quarter holding katana; right-facing run. True transparent alpha; no text/logo/commercial character.
-2. **ember.png** — Use original model identity. Eight columns/seven rows, 52 articulated drawings: four each idle/run/jump/rise/fall/landing/cling/slide/wall-jump/dash/forward katana/hurt/death. Right-facing, same anatomy/costume/scale, clear transparent gutters, feet/pivot consistency. No floor, grid, labels or scene.
-3. **jade.png** — Edit original atlas, preserve poses/layout/alpha; replace costume with emerald robe, short ivory haori, pale green scarf, fitted hood and carved wooden bracers. Actual garment/silhouette changes, not a tint.
-4. **moon.png** — Edit original atlas, preserve poses/layout/alpha; midnight tunic, split ivory coat-tails, ochre scarf, silver crescent clasp, silver forearm/shin plates. Same eyes/katana; actual accessory and cloth changes.
-5. **sentinel.png** — Original masked temple guard, dark plum lacquer half-mask, pale slit eyes, straw shoulder cape, sash and short curved sword. Four columns/seven rows: idle/patrol/telegraph/forward slash/recover/hurt/death, four articulated frames per action; right-facing, transparent, no commercial design or scene.
-6. **moth.png** — Original bronze lantern-moth, luminous teal eyes, ink-veined ivory paper wings, indigo tassel, talons. Four columns/seven rows: idle wingbeat/fly/windup/dive/recover/hurt/folded defeat. Transparent, coherent side view, no floating mask or primitive substitute.
-7. **oni.png** — Original towering storm-temple warlord, bronze/black segmented armor, red trousers, asymmetric ivory antler helmet, indigo sash and heavy curved sword. Four columns/seven rows: breathing/heavy steps/overhead telegraph/forward cleave/exhausted recovery/hurt/kneeling collapse. Transparent full body and weapon, no existing boss design.
-8. **sky.png** — Portrait above-cloud sanctuary at golden dawn: eroded jade pillars, floating distant shrines/bridges, wind-bent pines, ivory cloud sea, layered atmospheric ink/gouache perspective. Central 70% quiet for gameplay. No actors/UI/playable objects/text.
-9. **night.png** — Portrait cold cobalt/cyan bamboo ravine, large pale moon, waterfall ribbons, lantern shrines, talismans and roof/bamboo silhouettes at edges. Different biome structures, central field quiet, no actors/UI/text.
-10. **inferno.png** — Portrait obsidian volcanic canyon, molten rivers/waterfalls, broken red torii and chains, jagged silhouettes, smoky crimson sky and ash. Dark open central field; charcoal/burnt red/orange palette. No actors/UI/text.
-11. **terrain.png** — Transparent original hand-painted 4×2 object sheet: stone ledge, cracked ledge, floating mechanical ledge, gate beam; jade wall, electrical metal wall, volcanic column, ornate boss arena. Flat readable collision faces, rich carved/painted surfaces, no characters/grid/text.
-12. **ember-actions.png** — Use original hero identity. Four columns/four rows with generous gutters and whole limbs/weapons: four wall-push/leftward wall-jump poses; four rightward air dash poses; four katana windup/down-right slash/full forward blade/follow-through; four stagger/kneel/fall/lying death poses. True transparent alpha, same costume and articulated anatomy.
-13. **jade-actions.png** — Edit preceding 4×4 target with jade costume reference only. Preserve all16 poses/pivots/weapon positions/alpha; hooded emerald/ivory garments, green scarf, wooden bracers.
-14. **moon-actions.png** — Edit preceding 4×4 target with moon costume reference only. Preserve all16 poses/pivots/weapon positions/alpha; split ivory coat, ochre scarf, silver plates/clasp.
-15. **oni-actions.png** — Use original oni identity; four columns/four rows with full weapon padding. Four overhead windups, four forward cleaves, four fatigued vulnerable recovery poses, four stagger/kneel/hip collapse/lying defeat poses. Same bronze/black armor, antlers, sash and sword, true alpha, no scene/grid/text.
+12 новых изображений: мшистый камень, японская крыша, сломанная крыша, храмовая терракота, бамбук, механизм, трещины, электрическая панель, grip-стена, обсидиан, арена, врата. `terrain.ts` генерирует верхнюю контактную плоскость и usable span. Изогнутые края крыш вынесены за физическую ширину; коллизии/маршруты неизменны. Варианты одного игрового типа выбираются по биому и стабильному ID в `terrain-style.ts`.
 
-## Проверка и ограничения
+18 самостоятельных изображений окружения: небо + пять прозрачных слоёв для каждого биома. Тёплые парящие храмы; лунный бамбуковый каньон/водопады; обсидиановые разломы/руины. Структуры действительно различаются. Облака .04, горы .10, архитектура .23, растения .43, края .72 от движения камеры. Декоративная модель не хранится в снимках. Повторяемые изображения затухают до нулевого alpha сверху/снизу. Растения и края режутся по alpha на две области для сокращения пустой прозрачной отрисовки.
 
-Исходные листы и подготовленные кадры просмотрены визуально; модели подключены к соответствующим состояниям, а не демонстрируются целым листом. Автоматическая проверка подтверждает формат/alpha/непустоту/уникальность. Desktop и портретный просмотр и конкретные результаты перечислены в QA.md.
+Облака/туман дрейфуют, растения слегка качаются, водопады меняют световую полосу, фонари мерцают. 30 тематических частиц получают небольшой импульс от близкого dash; центральная область малоплотная. Основные персонажи/клинки/платформы — настоящие рисунки. Программны только маленькие FX/монеты/телеграфы, туманная маска и свет фонаря.
 
-Реальное устройство и субъективная плавность на слабом GPU требуют отдельной проверки. Небольшие рисованные различия формы ткани между кадрами допустимы для выбранной покадровой стилистики; программной интерполяции поз нет. Чужие референсы и исходные генерации не публикуются в релизном ZIP.
+## Проверка
+
+Автоматически проверяются пиксели каждого кадра, уникальность декодированных поз, мягкие alpha-границы, sourceSize/pivot/границы, все действия, независимые слои, прозрачные швы, контактные поверхности и лимит памяти. Хэши сами по себе не доказывают художественное качество: исходники, итоговые страницы, живой production и последовательности просмотра проверяются отдельно. Финальные результаты/известные ограничения — в `QA.md` и `PERFORMANCE.md`.

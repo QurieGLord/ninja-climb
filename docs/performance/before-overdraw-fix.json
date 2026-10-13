@@ -1,0 +1,43 @@
+{
+  "label": "final",
+  "date": "2026-10-13T07:48:18.615Z",
+  "mode": "headed",
+  "renderer": "ANGLE SwiftShader (software GPU)",
+  "measurement": "requestAnimationFrame intervals in visible focused production page; compositor cadence proxy, not physical display/GPU proof",
+  "fixture": "80 moving/static one-way platforms, 40 enemies including phase-II-capable bosses; actual jump/dash/katana keyboard edges, invincibility only in saved test fixture",
+  "warmupSeconds": 5,
+  "targetSeconds": 60,
+  "samples": 1225,
+  "durationMs": 59968.8,
+  "averageMs": 48.9541224489796,
+  "medianMs": 50,
+  "p95Ms": 83.39999999999964,
+  "maxMs": 150,
+  "fps": 20.427288856872238,
+  "over25": 1115,
+  "over25Percent": 91.02040816326532,
+  "over50": 366,
+  "longTasks": [
+    {
+      "start": 9477.90000000596,
+      "duration": 55
+    },
+    {
+      "start": 14708.40000000596,
+      "duration": 50
+    }
+  ],
+  "visible": true,
+  "focused": true,
+  "height": 2127,
+  "elapsed": 69.15833333333444,
+  "kills": 3,
+  "bestCombo": 2,
+  "ended": false,
+  "memory": {
+    "usedJSHeapSize": 23276645,
+    "totalJSHeapSize": 33782397
+  },
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "errors": []
+}

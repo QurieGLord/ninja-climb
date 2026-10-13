@@ -1,0 +1,110 @@
+{
+  "createdAt": "2026-10-13T05:42:24.465Z",
+  "archive": "ninja-climb-yandex.zip",
+  "sha256": "fac5ecec711d41563002e9ff2472597fe6b0540c4f3175f99b0443b684405050",
+  "zipBytes": 14701682,
+  "unpackedBytes": 15829527,
+  "limit": 100000000,
+  "files": [
+    {
+      "name": "assets/backgrounds/inferno.webp",
+      "size": 191748
+    },
+    {
+      "name": "assets/backgrounds/night.webp",
+      "size": 205618
+    },
+    {
+      "name": "assets/backgrounds/sky.webp",
+      "size": 221084
+    },
+    {
+      "name": "assets/characters/ember-combat.png",
+      "size": 1023005
+    },
+    {
+      "name": "assets/characters/ember.png",
+      "size": 1356526
+    },
+    {
+      "name": "assets/characters/jade-combat.png",
+      "size": 1118809
+    },
+    {
+      "name": "assets/characters/jade.png",
+      "size": 1670317
+    },
+    {
+      "name": "assets/characters/moon-combat.png",
+      "size": 1207739
+    },
+    {
+      "name": "assets/characters/moon.png",
+      "size": 1649133
+    },
+    {
+      "name": "assets/enemies/moth.png",
+      "size": 1072047
+    },
+    {
+      "name": "assets/enemies/oni.png",
+      "size": 1763674
+    },
+    {
+      "name": "assets/enemies/sentinel.png",
+      "size": 1251852
+    },
+    {
+      "name": "assets/index-Dyx6G6P7.js",
+      "size": 60575
+    },
+    {
+      "name": "assets/index-iZiSLZQP.css",
+      "size": 18117
+    },
+    {
+      "name": "assets/phaser-D3izK-R_.js",
+      "size": 1387437
+    },
+    {
+      "name": "assets/platforms/arena.png",
+      "size": 311364
+    },
+    {
+      "name": "assets/platforms/electric.png",
+      "size": 210175
+    },
+    {
+      "name": "assets/platforms/fragile.png",
+      "size": 112724
+    },
+    {
+      "name": "assets/platforms/gate.png",
+      "size": 183261
+    },
+    {
+      "name": "assets/platforms/moving.png",
+      "size": 127005
+    },
+    {
+      "name": "assets/platforms/stone.png",
+      "size": 156542
+    },
+    {
+      "name": "assets/platforms/volcanic.png",
+      "size": 247009
+    },
+    {
+      "name": "assets/platforms/wall.png",
+      "size": 280764
+    },
+    {
+      "name": "favicon.svg",
+      "size": 352
+    },
+    {
+      "name": "index.html",
+      "size": 2650
+    }
+  ]
+}

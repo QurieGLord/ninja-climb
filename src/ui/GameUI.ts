@@ -178,7 +178,7 @@ export class GameUI {
   private showSkins() {
     this.openDialog(`<div class="eyebrow">ТВОЙ ПУТЬ. ТВОЙ СТИЛЬ.</div><h2>Облики ниндзя</h2><p>Одна сила. Три характера.</p><div class="skin-wallet">${icon('coin')} <b class="wallet">${this.store.data.coins}</b> монет</div><div class="skin-list">${SKINS.map(s => {
       const owned = this.store.data.ownedSkins.includes(s.id), selected = this.store.data.selectedSkin === s.id;
-      return `<button class="skin-card ${selected ? 'selected' : ''}" data-skin="${s.id}"><span class="skin-preview" style="background-image:url('${import.meta.env.BASE_URL}assets/characters/${s.id}.png')"></span><span><b>${s.name}</b><small>${selected ? 'ВЫБРАН' : owned ? 'ВЫБРАТЬ' : `${s.price} МОНЕТ`}</small></span><em>${selected ? '✓' : owned ? '→' : icon('coin')}</em></button>`;
+      return `<button class="skin-card ${selected ? 'selected' : ''}" data-skin="${s.id}"><span class="skin-preview" style="background-image:url('${import.meta.env.BASE_URL}assets/characters/${s.id}-preview.png')"></span><span><b>${s.name}</b><small>${selected ? 'ВЫБРАН' : owned ? 'ВЫБРАТЬ' : `${s.price} МОНЕТ`}</small></span><em>${selected ? '✓' : owned ? '→' : icon('coin')}</em></button>`;
     }).join('')}</div><p class="help-footnote">Монеты начисляются за сбор и победы. Все облики дают одинаковые игровые возможности.</p>`, 'Облики ниндзя');
     this.dialog?.querySelectorAll<HTMLButtonElement>('[data-skin]').forEach(button => {
       button.onclick = () => {

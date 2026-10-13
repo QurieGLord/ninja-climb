@@ -1,0 +1,1599 @@
+{
+  "label": "baseline",
+  "date": "2026-10-13T08:40:10.813Z",
+  "mode": "headed",
+  "measurement": "requestAnimationFrame intervals and WebGL-render frame count in visible focused production page; compositor cadence proxy, not physical display/GPU proof",
+  "fixture": "80 moving/static platforms, 40 enemies; measured 10s real boss phase I -> II combat, then 50s climbing through three biomes with jump/dash/air katana; invincibility only in saved test fixture",
+  "warmupSeconds": 5,
+  "targetSeconds": 60,
+  "samples": 3600,
+  "renderedFrames": 3601,
+  "drawCalls": 16997,
+  "durationMs": 60002.200000000004,
+  "averageMs": 16.66727777777778,
+  "medianMs": 16.69999999999709,
+  "p95Ms": 16.799999999995634,
+  "maxMs": 16.80000000000291,
+  "fps": 59.9978000806637,
+  "over25": 0,
+  "over25Percent": 0,
+  "over50": 0,
+  "longTasks": [],
+  "telemetry": [
+    {
+      "height": 330,
+      "motion": "attacking",
+      "elapsed": 5.341666666666722,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "attacking",
+      "elapsed": 6.091666666666759,
+      "bosses": [
+        {
+          "hp": 3,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "attacking",
+      "elapsed": 7.591666666666834,
+      "bosses": [
+        {
+          "hp": 1,
+          "state": "attack"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "attacking",
+      "elapsed": 8.675000000000148,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "attacking",
+      "elapsed": 9.441666666666771,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "attacking",
+      "elapsed": 10.208333333333394,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "idle",
+      "elapsed": 11.74166666666664,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "idle",
+      "elapsed": 12.508333333333264,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "attacking",
+      "elapsed": 13.274999999999887,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 330,
+      "motion": "attacking",
+      "elapsed": 14.04166666666651,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 394,
+      "motion": "rising",
+      "elapsed": 15.774999999999745,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 437,
+      "motion": "attacking",
+      "elapsed": 16.391666666666378,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 466,
+      "motion": "rising",
+      "elapsed": 17.70833333333297,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 528,
+      "motion": "dashing",
+      "elapsed": 18.774999999999576,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "attack"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 574,
+      "motion": "wall_jump",
+      "elapsed": 19.77499999999952,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 612,
+      "motion": "attacking",
+      "elapsed": 20.574999999999473,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 647,
+      "motion": "attacking",
+      "elapsed": 21.574999999999417,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 694,
+      "motion": "attacking",
+      "elapsed": 22.4583333333327,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 746,
+      "motion": "attacking",
+      "elapsed": 23.50833333333264,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 765,
+      "motion": "attacking",
+      "elapsed": 24.574999999999246,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 806,
+      "motion": "falling",
+      "elapsed": 25.25833333333254,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 862,
+      "motion": "attacking",
+      "elapsed": 26.458333333332472,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 940,
+      "motion": "dashing",
+      "elapsed": 27.52499999999908,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1001,
+      "motion": "attacking",
+      "elapsed": 28.49166666666569,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1047,
+      "motion": "rising",
+      "elapsed": 29.42499999999897,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1092,
+      "motion": "attacking",
+      "elapsed": 30.47499999999891,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1113,
+      "motion": "attacking",
+      "elapsed": 31.108333333332208,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1158,
+      "motion": "falling",
+      "elapsed": 32.30833333333214,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1208,
+      "motion": "rising",
+      "elapsed": 33.37499999999875,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1272,
+      "motion": "attacking",
+      "elapsed": 34.37499999999869,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1324,
+      "motion": "attacking",
+      "elapsed": 35.19166666666531,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1386,
+      "motion": "dashing",
+      "elapsed": 36.37499999999858,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1432,
+      "motion": "wall_jump",
+      "elapsed": 37.37499999999852,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "attack"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1466,
+      "motion": "attacking",
+      "elapsed": 38.224999999998474,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1487,
+      "motion": "attacking",
+      "elapsed": 39.158333333331754,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1527,
+      "motion": "attacking",
+      "elapsed": 40.07499999999837,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1588,
+      "motion": "attacking",
+      "elapsed": 41.07499999999831,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1627,
+      "motion": "attacking",
+      "elapsed": 41.65833333333161,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "attack"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1668,
+      "motion": "attacking",
+      "elapsed": 43.124999999998195,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1706,
+      "motion": "rising",
+      "elapsed": 43.42499999999818,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1737,
+      "motion": "dashing",
+      "elapsed": 45.04166666666475,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1793,
+      "motion": "attacking",
+      "elapsed": 46.041666666664696,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        },
+        {
+          "hp": 4,
+          "state": "idle"
+        }
+      ]
+    },
+    {
+      "height": 1838,
+      "motion": "rising",
+      "elapsed": 46.92499999999798,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        },
+        {
+          "hp": 4,
+          "state": "move"
+        }
+      ]
+    },
+    {
+      "height": 1886,
+      "motion": "attacking",
+      "elapsed": 48.02499999999792,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        }
+      ]
+    },
+    {
+      "height": 1902,
+      "motion": "attacking",
+      "elapsed": 48.74166666666454,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "windup"
+        }
+      ]
+    },
+    {
+      "height": 1953,
+      "motion": "attacking",
+      "elapsed": 49.974999999997806,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "recover"
+        }
+      ]
+    },
+    {
+      "height": 2002,
+      "motion": "rising",
+      "elapsed": 50.97499999999775,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        }
+      ]
+    },
+    {
+      "height": 2045,
+      "motion": "attacking",
+      "elapsed": 51.608333333331046,
+      "bosses": [
+        {
+          "hp": 4,
+          "state": "move"
+        }
+      ]
+    },
+    {
+      "height": 2064,
+      "motion": "attacking",
+      "elapsed": 52.22499999999768,
+      "bosses": []
+    },
+    {
+      "height": 2108,
+      "motion": "dashing",
+      "elapsed": 53.92499999999758,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "dashing",
+      "elapsed": 54.7916666666642,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "attacking",
+      "elapsed": 55.774999999997476,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "dashing",
+      "elapsed": 56.5416666666641,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "attacking",
+      "elapsed": 57.30833333333072,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "falling",
+      "elapsed": 58.84166666666397,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "attacking",
+      "elapsed": 59.60833333333059,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "attacking",
+      "elapsed": 60.374999999997215,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "attacking",
+      "elapsed": 61.90833333333046,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "attacking",
+      "elapsed": 62.674999999997084,
+      "bosses": []
+    },
+    {
+      "height": 2121,
+      "motion": "attacking",
+      "elapsed": 63.44166666666371,
+      "bosses": []
+    }
+  ],
+  "visible": true,
+  "focused": true,
+  "height": 2121,
+  "elapsed": 63.44166666666371,
+  "kills": 5,
+  "bestCombo": 3,
+  "ended": false,
+  "memory": {
+    "usedJSHeapSize": 16871720,
+    "totalJSHeapSize": 20133644
+  },
+  "renderer": "ANGLE (NVIDIA Corporation, NVIDIA GeForce GTX 1050 Ti/PCIe/SSE2, OpenGL ES 3.2)",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "bossPhaseII": true,
+  "simulationSeconds": 58.849999999997024,
+  "rendererTaskSeconds": 4.93307,
+  "scriptSeconds": 3.015082,
+  "targetMet": true,
+  "errors": []
+}

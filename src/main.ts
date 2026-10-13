@@ -12,6 +12,7 @@ import { ProgressStore, type StorageLike } from './systems/ProgressStore';
 import { GameUI } from './ui/GameUI';
 import type { Services } from './game/Services';
 import type { RunSnapshot } from './game/RunModel';
+import {ensureSkin} from './rendering/assets';
 
 const pause = new PauseManager();
 const audio = new AudioSystem();
@@ -21,9 +22,13 @@ const storage: StorageLike = { getItem: key => localStorage.getItem(key), setIte
 const store = new ProgressStore(storage, platform);
 let game: Phaser.Game;
 let playing = false, ready = false, previousBest = 0;
+let starting=false;
 let input: InputSystem;
 const ui = new GameUI(store, {
-  start(resume) {
+  async start(resume) {
+    if(starting)return;starting=true;
+    try{await ensureSkin(game.scene.getScene('Menu'),store.data.selectedSkin);}catch{ui.toast('Не удалось загрузить облик. Попробуй снова.');starting=false;return;}
+    starting=false;
     audio.unlock();
     pause.set('manual', false);
     input.clear(); input.enabled = true;
@@ -58,6 +63,11 @@ function syncPause() {
   input.clear();
   platform.gameplay(playing && !pause.paused);
   ui.paused(pause.paused, pause.has('manual'), ['blur', 'hidden', 'sdk', 'ad'].some(reason => pause.has(reason as 'blur')));
+  if(game&&ready){
+    if(playing)(game.scene.getScene('Play') as PlayScene).resetTiming();
+    else if(game.scene.isActive('Menu'))(game.scene.getScene('Menu') as MenuScene).resetTiming();
+    if(pause.paused)game.loop.sleep();else if(!game.loop.running)game.loop.wake();
+  }
 }
 pause.subscribe(syncPause);
 pause.bindWindow();
@@ -76,6 +86,7 @@ const services: Services = {
 };
 
 window.addEventListener('game-load-error', () => ui.loadingError('Не удалось загрузить ресурсы. Проверь соединение и попробуй снова.'));
+window.addEventListener('costume-load-error',()=>ui.toast('Не удалось загрузить облик. Попробуй выбрать его снова.'));
 window.addEventListener('pagehide', () => { if (playing) (game.scene.getScene('Play') as PlayScene).save(); void store.flushCloud(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && playing) { (game.scene.getScene('Play') as PlayScene).save(); void store.flushCloud(); } });
 
@@ -90,6 +101,9 @@ async function boot() {
     backgroundColor: '#173a46',
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     render: { antialias: true, roundPixels: false },
+    // Native RAF: the 4.2.1 limiter passes accumulated residual time as delta.
+    // On a 60 Hz display that can speed up physics/animation; target alone avoids it.
+    fps: {target:60,forceSetTimeOut:false,smoothStep:true},
     audio: { noAudio: true },
     scene: [BootScene, MenuScene, PlayScene],
     callbacks: { preBoot: g => g.registry.set('services', services) },

@@ -1,101 +1,92 @@
 import sharp from 'sharp';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
-import { resolve } from 'node:path';
-const root=resolve(import.meta.dirname,'..'),source=resolve(root,'docs/art-source'),output=resolve(root,'public/assets');
-const audit=[],cache=new Map();
+import {mkdir,readFile,writeFile,readdir,unlink} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {resolve} from 'node:path';
+import {split,extract} from './art-extract.mjs';
+const root=resolve(import.meta.dirname,'..'),source=resolve(root,'docs/art-source/v2'),output=resolve(root,'public/assets');
 const actions=['idle','running','jumping','rising','falling','landing','wall_cling','wall_slide','wall_jump','dashing','attacking','hurt','dead'];
-
-// Alpha-aware extraction avoids clipping AI-authored poses to the nominal grid.
-// Multi-source geodesic labels separate adjacent silhouettes at narrow alpha bridges.
-// No poses, limbs, clothing or weapon pixels are drawn or interpolated here.
-async function split(name,columns,rows){
- if(cache.has(name))return cache.get(name);
- const path=resolve(source,name+'.png'),buffer=await readFile(path);
- const {data,info}=await sharp(buffer).ensureAlpha().raw().toBuffer({resolveWithObject:true});
- const w=info.width,h=info.height,cw=w/columns,ch=h/rows;
- const mask=new Uint8Array(w*h),prefix=new Uint32Array((w+1)*(h+1));
- for(let y=0;y<h;y++){let sum=0;for(let x=0;x<w;x++){const i=y*w+x;mask[i]=Number(data[i*4+3]>=64);sum+=mask[i];prefix[(y+1)*(w+1)+x+1]=prefix[y*(w+1)+x+1]+sum;}}
- const density=(x,y)=>{const x0=Math.max(0,x-12),y0=Math.max(0,y-12),x1=Math.min(w,x+13),y1=Math.min(h,y+13);return prefix[y1*(w+1)+x1]-prefix[y0*(w+1)+x1]-prefix[y1*(w+1)+x0]+prefix[y0*(w+1)+x0];};
- const labels=new Int16Array(w*h).fill(-1),queue=new Int32Array(w*h),seeds=[];let head=0,tail=0;
- for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
-  let best=-1,bx=0,by=0;
-  for(let y=Math.floor((row+0.10)*ch);y<Math.min(h,(row+0.94)*ch);y+=2)for(let x=Math.floor((col+0.12)*cw);x<Math.min(w,(col+0.94)*cw);x+=2){
-   if(!mask[y*w+x])continue;const d=density(x,y);const score=d-0.006*((x-(col+0.63)*cw)**2+(y-(row+0.58)*ch)**2);
-   if(score>best){best=score;bx=x;by=y;}
-  }
-  const id=row*columns+col;
-  if(best<140){seeds[id]=null;continue;}
-  seeds[id]={x:bx,y:by};labels[by*w+bx]=id;queue[tail++]=by*w+bx;
- }
- while(head<tail){const p=queue[head++],x=p%w,y=Math.floor(p/w),id=labels[p];for(const q of [x>0?p-1:-1,x<w-1?p+1:-1,y>0?p-w:-1,y<h-1?p+w:-1])if(q>=0&&mask[q]&&labels[q]===-1){labels[q]=id;queue[tail++]=q;}}
- const bounds=seeds.map(()=>({x:w,y:h,right:-1,bottom:-1,pixels:0}));
- for(let i=0;i<labels.length;i++){const id=labels[i];if(id<0)continue;const b=bounds[id],x=i%w,y=Math.floor(i/w);b.x=Math.min(b.x,x);b.y=Math.min(b.y,y);b.right=Math.max(b.right,x);b.bottom=Math.max(b.bottom,y);b.pixels++;}
- const result={data,info,labels,bounds,seeds,sourceSha256:createHash('sha256').update(buffer).digest('hex')};cache.set(name,result);return result;
+const enemyActions=['idle','move','windup','attack','recover','hurt','dying'];
+const audit=[],crops={};
+const hash=b=>createHash('sha256').update(b).digest('hex');
+async function footCenter(png){
+ const {data,info}=await sharp(png).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ let lo=info.width,hi=-1;
+ for(let y=Math.max(0,info.height-Math.max(5,Math.round(info.height/18)));y<info.height;y++)for(let x=0;x<info.width;x++)if(data[(y*info.width+x)*4+3]>128){lo=Math.min(lo,x);hi=Math.max(hi,x);}
+ if(hi<lo)throw Error('Idle has no planted foot pixels');return(lo+hi)/2;
 }
-async function frame(sheet,index,scale){
- const b=sheet.bounds[index],seed=sheet.seeds[index];
- if(!seed||b.pixels<500)throw Error(`Missing real pose ${index}`);
- const w=b.right-b.x+1,h=b.bottom-b.y+1,pixels=Buffer.alloc(w*h*4);
- for(let y=0;y<h;y++)for(let x=0;x<w;x++){const original=(b.y+y)*sheet.info.width+b.x+x;if(sheet.labels[original]===index)sheet.data.copy(pixels,(y*w+x)*4,original*4,original*4+4);}
- const width=Math.round(w*scale),height=Math.round(h*scale);
- if(width>382||height>234)throw Error(`Pose exceeds frame: ${index}, ${width}x${height}`);
- const left=Math.round(192-(seed.x-b.x)*scale),top=235-height;
- if(left<0||left+width>384)throw Error(`Weapon exceeds frame ${index}: ${left}+${width}`);
- const png=await sharp(pixels,{raw:{width:w,height:h,channels:4}}).resize(width,height).png().toBuffer();
- return {png,left,top,bounds:b,pivot:seed,sha256:createHash('sha256').update(png).digest('hex')};
-}
-async function pack(name,directory,count,select){
- const pages=count>32?[{suffix:'',start:0,count:32},{suffix:'-combat',start:32,count:count-32}]:[{suffix:'',start:0,count}];
- for(const page of pages){
-  const pieces=[],frames=[];
-  for(let local=0;local<page.count;local++){
-   const i=page.start+local,{sheet,index,scale,sourceName}=await select(i),f=await frame(sheet,index,scale);
-   pieces.push({input:f.png,left:(local%4)*384+f.left,top:Math.floor(local/4)*256+f.top});
-   frames.push({frame:local,globalFrame:i,source:sourceName,sourceFrame:index,bounds:f.bounds,pivot:f.pivot,sha256:f.sha256});
+// Alpha-trimmed TexturePacker-compatible metadata preserves a COMMON logical
+// foot pivot. Packing/resizing never invents or interpolates an authored pose.
+async function actor(name,directory,sheets,states){
+ const pieces=[],frames={},entries=[];let x=2,y=2,rowHeight=0;
+ for(const spec of sheets){
+  const columns=spec.columns??8,sheet=await split(resolve(source,spec.file+'.png'),columns,spec.rows);
+  const reference=sheet.bounds[spec.reference??0],scale=90/(reference.bottom-reference.y+1);
+  for(let i=0;i<spec.rows*columns;i++){
+   if(spec.skipRows?.includes(Math.floor(i/columns)))continue;
+   const f=await extract(sheet,i),w=Math.round((f.bounds.right-f.bounds.x+1)*scale),h=Math.round((f.bounds.bottom-f.bounds.y+1)*scale);
+   const key=spec.action?`${spec.action}-${i}`:`${states[spec.start+Math.floor(i/columns)]}-${i%columns}`;
+   const png=await sharp(f.png).resize(w,h).png().toBuffer();
+   if(x+w+2>1024){x=2;y+=rowHeight+4;rowHeight=0;}
+   const idle=key.startsWith('idle-')&&directory==='characters';
+   const left=idle?Math.round(128-await footCenter(png)):Math.round(128-(f.seed.x-f.bounds.x)*scale),top=146-h;
+   if(left<0||left+w>256||top<0)throw Error(`Authored pose exceeds logical frame: ${name}/${key}: ${left},${top},${w},${h}`);
+   pieces.push({input:png,left:x,top:y});
+   frames[key]={frame:{x,y,w,h},rotated:false,trimmed:true,spriteSourceSize:{x:left,y:top,w,h},sourceSize:{w:256,h:160}};
+   entries.push({name:key,source:spec.file,sourceFrame:i,bounds:f.bounds,pivot:{x:128,y:146},anchor:idle?'planted-feet':'body',sha256:hash(png)});
+   if(i===0&&spec.start===0&&directory==='characters')await sharp(f.png).resize({height:220}).png().toFile(resolve(output,directory,name+'-preview.png'));
+   x+=w+4;rowHeight=Math.max(rowHeight,h);
   }
-  await mkdir(resolve(output,directory),{recursive:true});
-  const image=await sharp({create:{width:1536,height:Math.ceil(page.count/4)*256,channels:4,background:'#00000000'}}).composite(pieces).png({compressionLevel:9}).toBuffer();
-  await writeFile(resolve(output,directory,name+page.suffix+'.png'),image);
-  audit.push({name:name+page.suffix,actor:name,path:`assets/${directory}/${name}${page.suffix}.png`,width:1536,height:Math.ceil(page.count/4)*256,frameWidth:384,frameHeight:256,count:page.count,globalStart:page.start,alpha:true,frames});
  }
+ const height=Math.ceil((y+rowHeight+2)/4)*4;
+ if(height>2048)throw Error('Texture page too high '+name);
+ await sharp({create:{width:1024,height,channels:4,background:'#00000000'}}).composite(pieces).png({compressionLevel:9}).toFile(resolve(output,directory,name+'.png'));
+ await writeFile(resolve(output,directory,name+'.json'),JSON.stringify({frames,meta:{app:'Ninja Climb original alpha-trim packer',version:'2.1',image:name+'.png',format:'RGBA8888',size:{w:1024,h:height},scale:'1'}},null,2));
+ audit.push({name,path:`assets/${directory}/${name}.png`,width:1024,height,count:entries.length,rgbaBytes:1024*height*4,logicalFrame:{width:256,height:160,pivotX:128,pivotY:146},frames:entries});
+}
+// Only these generated runtime directories are replaced. Source generations stay in docs.
+for(const directory of ['characters','enemies','backgrounds','platforms']){
+ await mkdir(resolve(output,directory),{recursive:true});
+ for(const file of await readdir(resolve(output,directory)))await unlink(resolve(output,directory,file));
 }
 for(const name of ['ember','jade','moon']){
- const original=await split(name,8,7),critical=await split(name+'-actions',4,4);
- const scaleBase=180/(original.bounds[0].bottom-original.bounds[0].y+1),scaleCritical=180/(critical.bounds[12].bottom-critical.bounds[12].y+1);
- await pack(name,'characters',52,async i=>{
-  if(i>=32&&i<44)return{sheet:critical,index:i-32,scale:scaleCritical,sourceName:name+'-actions'};
-  if(i>=48)return{sheet:critical,index:i-36,scale:scaleCritical,sourceName:name+'-actions'};
-  return{sheet:original,index:i,scale:scaleBase,sourceName:name};
- });
+ await actor(name,'characters',[{file:name+'-main',rows:7,start:0},{file:name+'-combat',rows:6,start:7,reference:32}],actions);
+ const sheet=await split(resolve(source,name+'-main.png'),8,7),reference=sheet.bounds[0],scale=180/(reference.bottom-reference.y+1),pieces=[];
+ for(let i=0;i<8;i++){const f=await extract(sheet,i),w=Math.round((f.bounds.right-f.bounds.x+1)*scale),h=Math.round((f.bounds.bottom-f.bounds.y+1)*scale),png=await sharp(f.png).resize(w,h).png().toBuffer();pieces.push({input:png,left:i%4*320+Math.round(160-await footCenter(png)),top:Math.floor(i/4)*224+205-h});}
+ await sharp({create:{width:1280,height:448,channels:4,background:'#00000000'}}).composite(pieces).png({compressionLevel:9}).toFile(resolve(output,'characters',name+'-menu.png'));
 }
-for(const name of ['sentinel','moth','oni']){
- const original=await split(name,4,7),critical=name==='oni'?await split('oni-actions',4,4):null;
- const scaleBase=180/(original.bounds[0].bottom-original.bounds[0].y+1),scaleCritical=critical?Math.min(180/(critical.bounds[0].bottom-critical.bounds[0].y+1),232/Math.max(...critical.bounds.map(b=>b.bottom-b.y+1))):0;
- await pack(name,'enemies',28,async i=>{
-  if(critical&&i>=8&&i<20)return{sheet:critical,index:i-8,scale:scaleCritical,sourceName:'oni-actions'};
-  if(critical&&i>=24)return{sheet:critical,index:i-12,scale:scaleCritical,sourceName:'oni-actions'};
-  return{sheet:original,index:i,scale:scaleBase,sourceName:name};
- });
+await actor('sentinel','enemies',[{file:'sentinel',rows:6,start:0,skipRows:[1]},{file:'sentinel-walk',columns:4,rows:2,start:0,action:'move'},{file:'sentinel-hurt',columns:4,rows:2,start:0,action:'hurt'}],['idle','move','windup','attack','recover','dying']);
+for(const name of ['moth','oni'])await actor(name,'enemies',[{file:name,columns:7,rows:7,start:0}],enemyActions);
+const names=['stone','roof','broken-roof','temple','bamboo','moving','fragile','electric','wall','volcanic','arena','gate'];
+const terrain=await split(resolve(source,'terrain-v2.png'),4,3),anchors={},widths={};
+for(let i=0;i<names.length;i++){
+ const name=names[i],f=await extract(terrain,i),png=await sharp(f.png).resize({width:name==='wall'||name==='electric'?100:512}).png().toBuffer();
+ await writeFile(resolve(output,'platforms',name+'.png'),png);
+ const {data,info}=await sharp(png).ensureAlpha().raw().toBuffer({resolveWithObject:true}),tops=[];
+ for(let x=Math.floor(info.width*.3);x<info.width*.7;x++){for(let y=0;y<info.height;y++)if(data[(y*info.width+x)*4+3]>180){tops.push(y);break;}}
+ tops.sort((a,b)=>a-b);anchors[name]=Number(((tops[Math.floor(tops.length*.5)]??0)/info.height).toFixed(6));
+ widths[name]=name==='roof'||name==='broken-roof'?.78:name==='bamboo'?.78:.92;
 }
-for(const name of ['sky','night','inferno'])await sharp(resolve(source,name+'.png')).resize(720,1200).webp({quality:87}).toFile(resolve(output,'backgrounds',name+'.webp'));
-const terrain=await split('terrain',4,2),names=['stone','fragile','moving','gate','wall','electric','volcanic','arena'];
-for(let i=0;i<8;i++){
- const b=terrain.bounds[i],width=b.right-b.x+1,height=b.bottom-b.y+1,rgba=Buffer.alloc(width*height*4);
- if(b.pixels<500)throw Error('Missing terrain silhouette '+names[i]);
- for(let y=0;y<height;y++)for(let x=0;x<width;x++){const pixel=(b.y+y)*terrain.info.width+b.x+x;if(terrain.labels[pixel]===i)terrain.data.copy(rgba,(y*width+x)*4,pixel*4,pixel*4+4);}
- await sharp(rgba,{raw:{width,height,channels:4}}).png().toFile(resolve(output,'platforms',names[i]+'.png'));
-}
-const anchors={};
-for(const name of ['stone','fragile','moving','arena']){
- const {data,info}=await sharp(resolve(output,'platforms',name+'.png')).ensureAlpha().raw().toBuffer({resolveWithObject:true});
- let top=0;
- for(let y=0;y<info.height;y++){
-  let count=0,total=0;for(let x=Math.floor(info.width*.4);x<info.width*.6;x++){total++;if(data[(y*info.width+x)*4+3]>180)count++;}
-  if(count/total>.8){top=y;break;}
+for(const name of ['sky','night','inferno']){
+ const path=resolve(source,name+'-layers.png'),metadata=await sharp(path).metadata();
+ // The opaque sky rectangle is cropped away from transparent panel gutters.
+ await sharp(path).extract({left:30,top:38,width:710,height:280}).resize(480,800).removeAlpha().webp({quality:90}).toFile(resolve(output,'backgrounds',name+'.webp'));
+ for(const [index,layer]of [[1,'mountains'],[2,'temples'],[3,'flora'],[4,'edges'],[5,'clouds']]){
+  // Cell crop keeps BOTH disconnected sides and the authored empty center.
+  const left=Math.floor(index%2*metadata.width/2),top=Math.floor(Math.floor(index/2)*metadata.height/3),width=Math.floor(metadata.width/2),height=Math.floor(metadata.height/3);
+  const {data,info}=await sharp(path).extract({left,top,width,height}).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+  for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++)data[(y*info.width+x)*4+3]=Math.round(data[(y*info.width+x)*4+3]*Math.min(1,y/24,(info.height-1-y)/24));
+  const target=resolve(output,'backgrounds',name+'-'+layer+'.webp');
+  await sharp(data,{raw:info}).resize(480,layer==='clouds'?180:640,{fit:'fill'}).webp({quality:90,alphaQuality:100}).toFile(target);
+  if(layer==='flora'||layer==='edges'){
+   const {data:pixels,info:size}=await sharp(target).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+   crops[name+'-'+layer]=[];
+   for(let side=0;side<2;side++){let lo=480,hi=-1;for(let y=0;y<size.height;y++)for(let x=side*240;x<(side+1)*240;x++)if(pixels[(y*480+x)*4+3]>16){lo=Math.min(lo,x);hi=Math.max(hi,x);}lo=Math.max(0,lo-3);hi=Math.min(479,hi+3);crops[name+'-'+layer].push({x:lo,width:hi-lo+1});}
+  }
  }
- anchors[name]=Number((top/info.height).toFixed(5));
 }
-await writeFile(resolve(root,'src/data/terrain.ts'),'// Generated by assets:prepare. Collision planes meet the painted top surface.\nexport const TERRAIN_TOP = '+JSON.stringify(anchors,null,2)+' as const;\n');
-await writeFile(resolve(root,'docs/ART_FRAME_AUDIT.json'),JSON.stringify({generator:'built-in image_gen',actions,notes:'240 hand-drawn animation frames; alpha-aware technical separation and common foot anchors. No pose synthesis or interpolation.',atlases:audit},null,2));
-console.log('Prepared 240 genuine animation frames, 3 distinct backgrounds, 8 terrain images.');
+await writeFile(resolve(root,'src/data/terrain.ts'),'// Generated contact planes; physics never reads image dimensions.\nexport const TERRAIN_TOP = '+JSON.stringify(anchors,null,2)+' as const;\nexport const TERRAIN_SPAN = '+JSON.stringify(widths,null,2)+' as const;\n');
+await writeFile(resolve(root,'src/data/environment-crops.ts'),'// Generated alpha bounds: do not shade empty center pixels.\nexport const ENV_CROPS = '+JSON.stringify(crops,null,2)+' as const;\n');
+const totalRgbaBytes=audit.reduce((n,a)=>n+a.rgbaBytes,0);
+const totalFrames=audit.reduce((n,a)=>n+a.count,0);
+await writeFile(resolve(root,'docs/ART_FRAME_AUDIT.json'),JSON.stringify({generator:'built-in image_gen',version:'2.1',actions,enemyActions,totalFrames,totalRgbaBytes,notes:'Unique authored poses. Alpha-trim packing, common logical foot pivot. No pose synthesis; phase sampling of short actions preserves gameplay windows.',atlases:audit},null,2));
+console.log(`Prepared ${totalFrames} frames, 6 trimmed atlases (${(totalRgbaBytes/1048576).toFixed(2)} MiB RGBA for all costumes), 18 background layers, 12 terrain objects.`);

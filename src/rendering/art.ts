@@ -3,6 +3,8 @@ import Phaser from 'phaser';
 export function createEffectTextures(scene: Phaser.Scene) {
   const dot=scene.make.graphics({x:0,y:0});
   dot.fillStyle(0xffffff).fillCircle(5,5,4);dot.generateTexture('fx-dot',10,10);dot.destroy();
+  const lantern=scene.make.graphics({x:0,y:0});
+  lantern.fillStyle(0xffcc87,.12).fillCircle(14,17,14);lantern.fillStyle(0xf1b76c).fillRoundedRect(8,7,12,20,4);lantern.lineStyle(2,0x73555a).strokeRoundedRect(8,7,12,20,4);lantern.fillStyle(0x64495b).fillRect(7,5,14,3);lantern.generateTexture('fx-lantern',28,34);lantern.destroy();
   const mist=scene.make.graphics({x:0,y:0});
   for(let i=12;i>0;i--) mist.fillStyle(0xffffff,0.014).fillEllipse(160,32,300-i*10,60-i*3);
   mist.generateTexture('fx-mist',320,64);mist.destroy();

@@ -1181,7 +1181,7 @@ button svg {
 .boss-hud>div{height:4px;background:#15323d;border-radius:3px;margin-top:8px;overflow:hidden}
 .boss-hud i{display:block;height:100%;background:#efb075}
 .combo{top:240px;font-size:12px}
-.skin-preview{display:block;width:65px;height:70px;background-size:420px 560px;background-position:-20px -8px;background-repeat:no-repeat;flex-shrink:0}
+.skin-preview{display:block;width:65px;height:70px;background-size:contain;background-position:center;background-repeat:no-repeat;flex-shrink:0}
 @media(max-height:520px) and (orientation:landscape){
  .controls{left:20px;right:20px;bottom:10px}
  .control.direction{width:92px;height:96px}
