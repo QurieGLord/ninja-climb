@@ -1,33 +1,21 @@
 import { SKINS, type SkinId } from '../data/config';
-import type { RunSnapshot } from '../game/RunModel';
+import { restoreCheckpoint, type RunSnapshot } from '../game/RunModel';
 import type { PlatformAdapter } from '../sdk/types';
 
 export const SAVE_KEY = 'ninja-climb.progress.v1';
 export interface Progress {
-  version: 1; updatedAt: number; revision: number;
+  version: 1; tutorialComplete: boolean; updatedAt: number; revision: number;
   coins: number; bestHeight: number; bestScore: number; totalRuns: number;
   ownedSkins: SkinId[]; selectedSkin: SkinId; sound: boolean;
   activeRun: RunSnapshot | null;
 }
 export interface StorageLike { getItem(key: string): string | null; setItem(key: string, value: string): void }
 export const freshProgress = (): Progress => ({
-  version: 1, updatedAt: 0, revision: 0, coins: 0, bestHeight: 0, bestScore: 0, totalRuns: 0,
+  version: 1, tutorialComplete: false, updatedAt: 0, revision: 0, coins: 0, bestHeight: 0, bestScore: 0, totalRuns: 0,
   ownedSkins: ['ember'], selectedSkin: 'ember', sound: true, activeRun: null,
 });
 const integer = (n: unknown) => typeof n === 'number' && Number.isFinite(n) ? Math.max(0, Math.min(1e9, Math.floor(n))) : 0;
 const skinExists = (id: unknown): id is SkinId => SKINS.some(s => s.id === id);
-
-// Reject malformed checkpoints instead of booting into an invalid simulation.
-export function validRun(value: unknown): value is RunSnapshot {
-  if (!value || typeof value !== 'object') return false;
-  const s = value as RunSnapshot;
-  const nums = [s.seed, s.nextId, s.elapsed, s.cameraY, s.topY, s.generated, s.nextBoss, s.height, s.score, s.earned, s.kills, s.combo, s.bestCombo, s.comboLeft, s.attackLeft, s.cooldown];
-  if (!nums.every(Number.isFinite) || typeof s.id !== 'string' || typeof s.ended !== 'boolean' || s.ended || !s.player) return false;
-  if (![s.player.x, s.player.y, s.player.vx, s.player.vy, s.player.facing, s.player.invincible].every(Number.isFinite)) return false;
-  return Array.isArray(s.platforms) && s.platforms.length < 80 && s.platforms.every(p => p && ['stone', 'cloud', 'fragile'].includes(p.kind) && [p.id, p.x, p.y, p.baseX].every(Number.isFinite))
-    && Array.isArray(s.enemies) && s.enemies.length < 80 && s.enemies.every(e => e && ['wisp', 'oni'].includes(e.kind) && [e.id, e.x, e.y, e.baseX, e.hp, e.hitAt].every(Number.isFinite))
-    && Array.isArray(s.coins) && s.coins.length < 80 && s.coins.every(c => c && [c.id, c.x, c.y].every(Number.isFinite));
-}
 
 export function normalizeProgress(value: unknown): Progress {
   const defaults = freshProgress();
@@ -42,7 +30,8 @@ export function normalizeProgress(value: unknown): Progress {
     ...(typeof raw.updatedAt === 'number' && Number.isFinite(raw.updatedAt) ? { updatedAt: Math.max(0, raw.updatedAt) } : {}),
     ownedSkins: owned, selectedSkin: skinExists(raw.selectedSkin) && owned.includes(raw.selectedSkin) ? raw.selectedSkin : 'ember',
     sound: typeof raw.sound === 'boolean' ? raw.sound : true,
-    activeRun: validRun(raw.activeRun) ? structuredClone(raw.activeRun) : null,
+    activeRun: restoreCheckpoint(raw.activeRun),
+    tutorialComplete: raw.tutorialComplete === true,
   };
 }
 export function mergeProgress(local: Progress, cloud: Progress): Progress {
@@ -52,6 +41,7 @@ export function mergeProgress(local: Progress, cloud: Progress): Progress {
     bestHeight: Math.max(local.bestHeight, cloud.bestHeight), bestScore: Math.max(local.bestScore, cloud.bestScore),
     ownedSkins: [...new Set([...local.ownedSkins, ...cloud.ownedSkins])],
     totalRuns: Math.max(local.totalRuns, cloud.totalRuns),
+    tutorialComplete: local.tutorialComplete || cloud.tutorialComplete,
   });
 }
 
@@ -110,6 +100,7 @@ export class ProgressStore {
   beginRun(snapshot: RunSnapshot) { this.data.activeRun = snapshot; this.data.totalRuns++; this.persist(); }
   checkpoint(snapshot: RunSnapshot, coins = 0) {
     this.data.activeRun = snapshot.ended ? null : snapshot;
+    if (snapshot.tutorial >= 5) this.data.tutorialComplete = true;
     this.data.coins += Math.max(0, Math.floor(coins));
     this.data.bestHeight = Math.max(this.data.bestHeight, snapshot.height);
     this.data.bestScore = Math.max(this.data.bestScore, snapshot.height * 10 + snapshot.score);

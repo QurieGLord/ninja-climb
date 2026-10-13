@@ -1,15 +1,17 @@
 import Phaser from 'phaser';
-import { createTextures } from '../rendering/art';
-
+import { loadAssets } from '../rendering/assets';
+import { createEffectTextures } from '../rendering/art';
+import { registerAnimations } from '../rendering/animation';
 export class BootScene extends Phaser.Scene {
-  constructor() { super('Boot'); }
-  preload() {
-    this.load.svg('temple', `${import.meta.env.BASE_URL}assets/temple.svg`, { width: 480, height: 800 });
-    this.load.on('loaderror', () => window.dispatchEvent(new CustomEvent('game-load-error')));
+  private failed=false;
+  constructor(){super('Boot');}
+  preload(){
+    this.failed=false;
+    this.load.on('loaderror',()=>{this.failed=true;window.dispatchEvent(new CustomEvent('game-load-error'));});
+    loadAssets(this);
   }
-  create() {
-    if (!this.textures.exists('temple')) return;
-    createTextures(this);
-    this.scene.start('Menu');
+  create(){
+    if(this.failed) return;
+    createEffectTextures(this);registerAnimations(this);this.scene.start('Menu');
   }
 }

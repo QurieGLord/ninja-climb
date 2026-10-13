@@ -1,8 +1,10 @@
-import { SKINS, zoneAt, type SkinId } from '../data/config';
+import { SKINS, RULES, zoneAt, type SkinId } from '../data/config';
 import type { RunSnapshot } from '../game/RunModel';
 import type { ProgressStore } from '../systems/ProgressStore';
 
 const paths: Record<string, string> = {
+  jump: '<path d="M12 20V4m-6 6 6-6 6 6"/>',
+  dash: '<path d="m13 2-8 12h7l-1 8L21 9h-8l0-7Z"/>',
   sound: '<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
   mute: '<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m16 9 6 6m0-6-6 6"/>',
   arrow: '<path d="M5 12h14m-6-6 6 6-6 6"/>',
@@ -47,16 +49,16 @@ export class GameUI {
               </div>
             </section>
             <section id="hud" class="hud hidden" aria-label="Результат забега"><div class="height-block"><span id="zone" class="eyebrow">ТИХАЯ РОЩА</span><div><b id="height">0</b><span>м</span></div></div><div class="run-stats"><span>${icon('coin')} <b id="run-coins">0</b></span><small>ОЧКИ <b id="score">0</b></small></div></section>
-            <div id="combo" class="combo hidden"></div>
-            <div id="play-hint" class="play-hint hidden">Прыжки — автоматически. Направление — за тобой.</div>
-            <nav id="controls" class="controls hidden" aria-label="Управление"><div><button class="control direction" data-control="left" aria-label="Влево">${icon('left')}</button><button class="control direction" data-control="right" aria-label="Вправо">${icon('right')}</button></div><button class="control attack" data-control="attack" aria-label="Атаковать">${icon('sword')}<span>УДАР</span></button></nav>
+            <div id="vitals" class="vitals hidden" aria-label="Здоровье"></div><div id="boss-hud" class="boss-hud hidden"><b>СТРАЖ ГРОЗЫ</b><span id="boss-phase"></span><div><i id="boss-health"></i></div></div><div id="combo" class="combo hidden"></div>
+            <div id="play-hint" class="play-hint hidden">Первый шаг — за тобой.</div>
+            <nav id="controls" class="controls hidden" aria-label="Управление"><div class="move-controls"><button class="control direction" data-control="left" aria-label="Влево">${icon('left')}</button><button class="control direction" data-control="right" aria-label="Вправо">${icon('right')}</button></div><div class="action-controls"><button class="control dash" data-control="dash" aria-label="Рывок">${icon('dash')}<span>РЫВОК</span></button><button class="control jump" data-control="jump" aria-label="Прыжок">${icon('jump')}<span>ПРЫЖОК</span></button><button class="control attack" data-control="attack" aria-label="Атаковать">${icon('sword')}<span>УДАР</span></button></div></nav>
             <section id="pause-overlay" class="veil hidden"><div class="pause-panel"><span class="seal">静</span><div class="eyebrow">ВДОХ. ВЫДОХ.</div><h2>Мгновение тишины</h2><p id="pause-note">Храм подождёт.</p><button id="resume" class="button primary">Продолжить ${icon('play')}</button><button id="pause-menu" class="button secondary">В меню · сохранить забег</button></div></section>
             <section id="result" class="veil hidden"><div class="result-panel"><div class="eyebrow">ЕЩЁ НА ШАГ БЛИЖЕ К НЕБУ</div><h2>Хороший полёт<span>.</span></h2><div class="result-height"><b id="result-height">0</b> м</div><div id="new-record" class="record-badge hidden">${icon('trophy')} НОВАЯ ВЫСОТА</div><p id="result-cause"></p><div class="result-grid"><div><small>ОЧКИ</small><b id="result-score">0</b></div><div><small>МОНЕТЫ</small><b id="result-coins">+0</b></div><div><small>КОМБО</small><b id="result-combo">×0</b></div></div><button id="retry" class="button primary">Ещё один прыжок ${icon('arrow')}</button><button id="reward" class="button secondary">${icon('play')} +25 монет за видео</button><button id="result-menu" class="text-button">Вернуться в меню</button></div></section>
             <div id="toast" role="status" class="toast hidden"></div>
             <div id="dialog-root"></div>
           </div>
         </section>
-        <aside class="side side-right"><div class="chapter"><span class="chapter-number">壱</span><span class="eyebrow">ГЛАВА ПЕРВАЯ</span><h2>Вершина<br>внутри тебя.</h2><p>Там, где заканчивается земля,<br>начинается твой путь.</p></div><div class="guide"><div class="eyebrow">ИСКУССТВО ПОЛЁТА</div><div><span class="guide-icon">${icon('arrow')}</span><p><b>Направляй прыжок</b><small>← → или A / D · удерживай мышь</small></p></div><div><span class="guide-icon">${icon('sword')}</span><p><b>Атакуй в воздухе</b><small>Пробел · клик · касание</small></p></div><div><span class="guide-icon">${icon('cloud')}</span><p><b>Продолжай комбо</b><small>Удар по врагу подбрасывает выше</small></p></div></div><div class="save-info">${icon('cloud')}<span id="save-status">Прогресс на устройстве</span></div></aside>
+        <aside class="side side-right"><div class="chapter"><span class="chapter-number">壱</span><span class="eyebrow">ГЛАВА ПЕРВАЯ</span><h2>Вершина<br>внутри тебя.</h2><p>Там, где заканчивается земля,<br>начинается твой путь.</p></div><div class="guide"><div class="eyebrow">ИСКУССТВО ПОЛЁТА</div><div><span class="guide-icon">${icon('arrow')}</span><p><b>Направляй прыжок</b><small>← → / A D · Space — прыжок</small></p></div><div><span class="guide-icon">${icon('sword')}</span><p><b>Атакуй в воздухе</b><small>J — катана · Shift — рывок</small></p></div><div><span class="guide-icon">${icon('cloud')}</span><p><b>Продолжай комбо</b><small>Воздушное попадание возвращает рывок</small></p></div></div><div class="save-info">${icon('cloud')}<span id="save-status">Прогресс на устройстве</span></div></aside>
       </main>`;
     this.stage = document.querySelector('#stage')!;
     this.overlay = document.querySelector('#overlay')!;
@@ -113,7 +115,7 @@ export class GameUI {
   private setMode() {
     this.show('loader', this.mode === 'loading');
     this.show('menu', this.mode === 'menu'); this.show('hud', this.mode === 'play');
-    this.show('controls', this.mode === 'play'); this.show('pause', this.mode === 'play');
+    this.show('controls', this.mode === 'play'); this.show('vitals', this.mode === 'play'); this.show('boss-hud', false); this.show('pause', this.mode === 'play');
     this.show('result', this.mode === 'result'); this.show('pause-overlay', false); this.show('combo', false);
     this.show('play-hint', false);
     this.show('game-top', true);
@@ -123,9 +125,17 @@ export class GameUI {
     this.text('zone', zoneAt(s.height).name.toUpperCase());
     this.text('combo', `ВОЗДУШНОЕ КОМБО ×${s.combo}`);
     this.show('combo', s.combo > 0 && s.comboLeft > 0);
-    this.show('play-hint', s.elapsed < 5 && this.mode === 'play');
+    const lessons = ['1 / 5  ·  Пройди в сторону: ← → или кнопки снизу.', '2 / 5  ·  Удержи ПРЫЖОК / Space — поднимешься выше.', '3 / 5  ·  Прижмись к стене слева. ПРЫЖОК оттолкнёт тебя.', '4 / 5  ·  РЫВОК / Shift: направление задают стрелки, ↑ — вверх.', '5 / 5  ·  Подойди к стражу. УДАР / J — катана вперёд.'];
+    this.text('play-hint', lessons[s.tutorial] ?? '');
+    this.el('play-hint').classList.toggle('hint-top', s.player.y-s.cameraY+24 > 570);
+    this.show('play-hint', s.tutorial < 5 && this.mode === 'play');
+    this.text('vitals', '●'.repeat(Math.max(0,s.player.health)) + '○'.repeat(Math.max(0,3-s.player.health)));
+    const boss = s.enemies.find(e => e.kind === 'oni' && e.hp > 0 && Math.abs(e.y-s.player.y)<380);
+    this.show('boss-hud', !!boss && this.mode === 'play');
+    if(boss){ this.el('boss-phase').style.setProperty('--charge', boss.state === 'windup' ? String(Math.min(1,boss.stateTime/(0.85*(boss.hp<=3?0.75:1)))) : '0'); this.text('boss-phase', boss.state === 'recover' ? 'АТАКУЙ · ОКНО УЯЗВИМОСТИ' : boss.state === 'windup' ? 'ПРИГОТОВЬСЯ К УДАРУ' : boss.hp<=3 ? 'ФАЗА II' : 'ФАЗА I'); this.el('boss-health').style.width = `${boss.hp/6*100}%`; }
+    document.querySelector('[data-control="dash"]')?.classList.toggle('spent', !s.player.dashReady);
     const attack = document.querySelector<HTMLButtonElement>('[data-control="attack"]')!;
-    attack.style.setProperty('--cooldown', `${s.cooldown / 0.38 * 100}%`);
+    attack.style.setProperty('--cooldown', `${s.player.cooldown / RULES.attackCooldown * 100}%`);
   }
   paused(paused: boolean, manual: boolean, blocked: boolean) {
     if (this.mode !== 'play') return;
@@ -163,12 +173,12 @@ export class GameUI {
   }
   closeDialog() { this.el('dialog-root').innerHTML = ''; this.dialog = undefined; this.el('menu').inert = false; this.previousFocus?.focus({ preventScroll: true }); }
   private showHelp() {
-    this.openDialog(`<div class="eyebrow">ДОВЕРЬСЯ ВЕТРУ</div><h2>Как играть</h2><p>Ниндзя прыгает сам. Приземляйся на крыши и поднимайся всё выше.</p><ol class="help-list"><li><b>Выбирай направление</b><span>← → или A / D. На экране — кнопки снизу. Можно удерживать мышь или палец на нужной стороне поля.</span></li><li><b>Атакуй рядом с врагом</b><span>Пробел, клик, тап или кнопка удара. Подойди ближе к маске. Попадание подбрасывает тебя вверх.</span></li><li><b>Лови воздушное комбо</b><span>Победи следующего врага за 2,4 секунды, не касаясь платформы. Больше комбо — больше очков.</span></li><li><b>Собирай монеты</b><span>Открывай облики в меню. Они меняют внешность, а твои способности зависят от тебя.</span></li></ol><p class="help-footnote">Песочные крыши разрушаются после прыжка. Остерегайся масок они: каждые 420 м появляется страж с тремя жизнями. Пауза — P или Esc.</p>`, 'Как играть');
+    this.openDialog(`<div class="eyebrow">ДОВЕРЬСЯ ВЕТРУ</div><h2>Искусство движения</h2><p>Ты выбираешь момент каждого прыжка. Начало пути — безопасное обучение.</p><ol class="help-list"><li><b>Двигайся и прыгай</b><span>← → / A D — направление. Space или ПРЫЖОК — отталкивание. Удерживай, чтобы прыгнуть выше.</span></li><li><b>Используй стены</b><span>Прижмись к каменной стене: сначала ниндзя удержится, потом начнёт скользить. ПРЫЖОК оттолкнёт в обратную сторону. Электрические стены опасны.</span></li><li><b>Совершай рывки</b><span>Shift или РЫВОК. Стрелки / W S выбирают направление; без направления — вверх по диагонали. Приземление и попадание в воздухе возвращают рывок.</span></li><li><b>Бей катаной вперёд</b><span>J / УДАР / левый клик. Один замах — одно попадание по цели. Воздушные попадания продолжают комбо, если между ними меньше двух секунд.</span></li></ol><p class="help-footnote">Мышь: удерживание поля — движение, левый клик — удар, правый — рывок к указателю. Экранные кнопки доступны и мыши. У босса дождись удара и атакуй во время его отдыха. P / Esc — пауза.</p>`, 'Как играть');
   }
   private showSkins() {
     this.openDialog(`<div class="eyebrow">ТВОЙ ПУТЬ. ТВОЙ СТИЛЬ.</div><h2>Облики ниндзя</h2><p>Одна сила. Три характера.</p><div class="skin-wallet">${icon('coin')} <b class="wallet">${this.store.data.coins}</b> монет</div><div class="skin-list">${SKINS.map(s => {
       const owned = this.store.data.ownedSkins.includes(s.id), selected = this.store.data.selectedSkin === s.id;
-      return `<button class="skin-card ${selected ? 'selected' : ''}" data-skin="${s.id}"><span class="mini-ninja" style="--skin-color:#${s.appearance.scarf.toString(16)}"><i></i></span><span><b>${s.name}</b><small>${selected ? 'ВЫБРАН' : owned ? 'ВЫБРАТЬ' : `${s.price} МОНЕТ`}</small></span><em>${selected ? '✓' : owned ? '→' : icon('coin')}</em></button>`;
+      return `<button class="skin-card ${selected ? 'selected' : ''}" data-skin="${s.id}"><span class="skin-preview" style="background-image:url('${import.meta.env.BASE_URL}assets/characters/${s.id}.png')"></span><span><b>${s.name}</b><small>${selected ? 'ВЫБРАН' : owned ? 'ВЫБРАТЬ' : `${s.price} МОНЕТ`}</small></span><em>${selected ? '✓' : owned ? '→' : icon('coin')}</em></button>`;
     }).join('')}</div><p class="help-footnote">Монеты начисляются за сбор и победы. Все облики дают одинаковые игровые возможности.</p>`, 'Облики ниндзя');
     this.dialog?.querySelectorAll<HTMLButtonElement>('[data-skin]').forEach(button => {
       button.onclick = () => {

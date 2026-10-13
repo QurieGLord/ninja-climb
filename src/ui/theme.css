@@ -887,43 +887,6 @@ button svg {
 .skin-card em svg {
   width:16px
 }
-.mini-ninja {
-  position:relative;
-  background:#233d48;
-  width:43px;
-  height:43px;
-  border-radius:40% 40% 45% 45%;
-  box-shadow:inset 0 0 0 2px #0b2631
-}
-.mini-ninja:before {
-  content:'';
-  position:absolute;
-  left:-1px;
-  right:-1px;
-  top:11px;
-  background:var(--skin-color);
-  height:5px
-}
-.mini-ninja:after {
-  content:'';
-  position:absolute;
-  left:5px;
-  right:5px;
-  top:18px;
-  height:9px;
-  background:#e4c59b;
-  border-radius:3px
-}
-.mini-ninja i {
-  position:absolute;
-  left:11px;
-  top:21px;
-  width:5px;
-  height:3px;
-  background:#173340;
-  z-index:1;
-  box-shadow:15px 0 0 #173340
-}
 .toast {
   position:absolute;
   bottom:136px;
@@ -1198,3 +1161,44 @@ button svg {
     margin-top:12px
   }
 }
+/* Action controls retain the menu palette, with distinct readable actions. */
+.controls{left:19px;right:19px;bottom:22px;align-items:end}
+.controls .move-controls{gap:8px}
+.controls .action-controls{gap:9px;align-items:end}
+.control.direction{width:57px;height:65px;border-radius:15px}
+.control.jump{width:76px;height:82px;border-radius:23px;background:#e9cc91;color:#18363d;border-color:#ffe6b3;flex-direction:column;gap:5px}
+.control.dash{width:63px;height:65px;border-radius:18px;background:#2c6975;flex-direction:column;gap:5px}
+.control.attack{width:68px;height:70px;border-radius:22px}
+.control span{font-size:8px;font-weight:800;letter-spacing:1px;pointer-events:none}
+.control.jump svg{width:26px;height:26px}
+.control.dash svg{width:23px;height:23px}
+.control.dash.spent{background:#21414b;color:#678b91;box-shadow:none}
+.play-hint{bottom:125px;font-size:11px;line-height:1.6;background:#12333ce8;border:1px solid #b3c6a32b;padding:11px 16px;pointer-events:none}
+.vitals{position:absolute;left:30px;top:183px;color:#ed957c;font-size:14px;letter-spacing:5px}
+.boss-hud{position:absolute;top:187px;left:140px;right:30px;font-size:8px;letter-spacing:1.5px;color:#edc185}
+.boss-hud>b{font-size:9px;font-weight:700}
+.boss-hud>span{display:block;margin-top:6px;font-size:7px;color:#d5d4b5;letter-spacing:1px}
+.boss-hud>div{height:4px;background:#15323d;border-radius:3px;margin-top:8px;overflow:hidden}
+.boss-hud i{display:block;height:100%;background:#efb075}
+.combo{top:240px;font-size:12px}
+.skin-preview{display:block;width:65px;height:70px;background-size:420px 560px;background-position:-20px -8px;background-repeat:no-repeat;flex-shrink:0}
+@media(max-height:520px) and (orientation:landscape){
+ .controls{left:20px;right:20px;bottom:10px}
+ .control.direction{width:92px;height:96px}
+ .controls .action-controls{display:grid;grid-template-columns:91px 96px;gap:8px}
+ .control.dash,.control.attack{width:91px;height:91px;border-radius:22px}
+ .control.jump{width:96px;height:190px;grid-column:2;grid-row:1/3}
+ .control span{font-size:14px}
+ .play-hint{bottom:218px;font-size:16px}
+ .vitals{top:213px;font-size:20px}
+ .boss-hud{top:215px}
+}
+#boss-phase:after{content:'';display:block;height:2px;width:100%;background:#f1ab72;transform:scaleX(var(--charge,0));transform-origin:left;margin-top:4px}
+
+@media(min-height:521px){.game-top .icon-button{width:54px;height:54px}.dialog-close{width:54px;height:54px;top:12px;right:12px}}
+/* Keep counters legible over dawn clouds and lessons clear of the actor. */
+.hud{text-shadow:0 2px 3px #071e2c,0 0 9px #071e2c}
+.run-stats{background:#102e3cce;padding:9px 11px;border:1px solid #bed0b42b;border-radius:10px;backdrop-filter:blur(5px)}
+.boss-hud{top:190px;background:#102e3ce8;padding:10px;border:1px solid #e9bd7a44;border-radius:8px;text-shadow:0 1px 3px #071e2c}
+.play-hint.hint-top{top:260px;bottom:auto}
+@media(max-height:520px) and (orientation:landscape){.boss-hud{top:240px}.combo{top:310px}.play-hint.hint-top{top:310px;bottom:auto}}

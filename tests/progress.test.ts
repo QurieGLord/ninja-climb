@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProgressStore, SAVE_KEY, freshProgress, normalizeProgress, mergeProgress } from '../src/systems/ProgressStore';
-import { RunModel } from '../src/game/RunModel';
+import { RunModel, IDLE_INPUT } from '../src/game/RunModel';
 import type { PlatformAdapter } from '../src/sdk/types';
 const platform = (): PlatformAdapter => ({ available: false, cloudAvailable: false, status: 'local', init: async () => {}, load: async () => null, save: async () => {}, ready: () => {}, gameplay: () => {}, rewarded: async () => 'unavailable', fullscreen: () => {} });
 const memory = () => { const map = new Map<string, string>(); return { getItem: (key: string) => map.get(key) ?? null, setItem: (key: string, value: string) => { map.set(key, value); } }; };
@@ -10,7 +10,7 @@ describe('persistent economy', () => {
     const storage = memory(), store = new ProgressStore(storage, platform()), run = new RunModel(undefined, 42);
     store.beginRun(run.snapshot());
     run.state.coins = [{ id: 99, x: 240, y: run.state.player.y }];
-    run.step(1 / 120, { direction: 0, targetX: null, attack: false });
+    run.step(1 / 120, IDLE_INPUT);
     store.checkpoint(run.snapshot(), 1);
     const reloaded = new ProgressStore(storage, platform());
     expect(reloaded.data.coins).toBe(1);

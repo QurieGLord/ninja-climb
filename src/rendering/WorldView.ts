@@ -1,67 +1,99 @@
 import Phaser from 'phaser';
-import { PLATFORM_TYPES } from '../data/config';
-import type { RunSnapshot } from '../game/RunModel';
-
+import { ENEMY_TYPES, PLATFORM_TYPES, RULES, zoneAt, ZONES } from '../data/config';
+import type { RunSnapshot } from '../game/types';
+import { TERRAIN_TOP } from '../data/terrain';
+import { heroAnimation } from './animation';
 export class WorldView {
-  private sprites = new Map<string, Phaser.GameObjects.Image>();
-  private ninja: Phaser.GameObjects.Image;
-  private slash: Phaser.GameObjects.Graphics;
-  private marks: Phaser.GameObjects.Graphics;
-  private bg: Phaser.GameObjects.Image;
-  constructor(private scene: Phaser.Scene, skin: string) {
-    this.bg = scene.add.image(240, 400, 'temple');
-    this.ninja = scene.add.image(240, 670, `ninja-${skin}`).setDepth(10).setDisplaySize(54, 61);
-    this.slash = scene.add.graphics().setDepth(11);
-    this.marks = scene.add.graphics().setDepth(7);
+  private images=new Map<string,Phaser.GameObjects.Image>();
+  private enemies=new Map<number,Phaser.GameObjects.Sprite>();
+  private ninja:Phaser.GameObjects.Sprite;
+  private backgrounds:Phaser.GameObjects.Image[]=[];
+  private mist:Phaser.GameObjects.Image[]=[];
+  private cues:Phaser.GameObjects.Graphics;
+  private slash:Phaser.GameObjects.Image;
+  private lastGhost=0;
+  private zoneIndex=-1;
+  constructor(private scene:Phaser.Scene,private skin:string){
+    this.backgrounds=ZONES.map(zone=>scene.add.image(240,400,`bg-${zone.background}`).setDisplaySize(500,834).setDepth(-10).setAlpha(0));
+    scene.add.rectangle(240,400,480,800,0x0b2935,0.18).setDepth(-8);
+    for(let i=0;i<4;i++)this.mist.push(scene.add.image(80+i*125,160+i*170,'fx-mist').setDepth(i%2?-2:4).setAlpha(0.16).setScale(1.4,1));
+    this.ninja=scene.add.sprite(240,686,`hero-${skin}`).setOrigin(0.5,235/256).setDisplaySize(168,112).setDepth(10);
+    this.slash=scene.add.image(0,0,'fx-slash').setDepth(12).setVisible(false).setDisplaySize(88,60);
+    this.cues=scene.add.graphics().setDepth(8);
   }
-  render(s: RunSnapshot) {
-    this.bg.setY(400 + Math.sin(s.cameraY * 0.00015) * 10);
-    const alive = new Set<string>();
-    const sprite = (id: string, texture: string, x: number, y: number, depth: number) => {
-      alive.add(id);
-      let image = this.sprites.get(id);
-      if (!image) { image = this.scene.add.image(x, y, texture).setDepth(depth); this.sprites.set(id, image); }
-      image.setPosition(x, y - s.cameraY);
-      return image;
+  setPaused(value:boolean){
+    if(value)this.ninja.anims.pause();else this.ninja.anims.resume();
+    for(const enemy of this.enemies.values())if(value)enemy.anims.pause();else enemy.anims.resume();
+  }
+  render(s:RunSnapshot){
+    const zone=zoneAt(s.height),index=ZONES.indexOf(zone),p=s.player;
+    if(index!==this.zoneIndex){this.backgrounds.forEach((bg,i)=>{if(this.zoneIndex<0)bg.setAlpha(i===index?1:0);else this.scene.tweens.add({targets:bg,alpha:i===index?1:0,duration:1200});});this.zoneIndex=index;}
+    this.backgrounds.forEach(bg=>bg.setY(400+Math.sin(s.cameraY*0.0008)*15));
+    this.mist.forEach((fog,i)=>fog.setPosition(((s.elapsed*(i+2)*3+i*157)%700)-100,130+i*190+Math.sin(s.cameraY*0.001+i)*20).setTint(zone.atmosphere));
+    const alive=new Set<string>();
+    const image=(id:string,key:string,x:number,y:number,depth:number)=>{
+      alive.add(id);let object=this.images.get(id);
+      if(!object){object=this.scene.add.image(x,y,key).setDepth(depth);this.images.set(id,object);}
+      if(object.texture.key!==key)object.setTexture(key);
+      return object.setPosition(x,y-s.cameraY);
     };
-    for (const p of s.platforms) {
-      if (p.broken) continue;
-      const roof = sprite(`p${p.id}`, 'platform', p.x, p.y + 11, 3);
-      roof.setDisplaySize(PLATFORM_TYPES[p.kind].width + 8, 30);
-      roof.setTint(p.kind === 'fragile' ? 0xe2ac8c : p.kind === 'cloud' ? 0xbbdded : 0xffffff);
+    for(const wall of s.walls){
+      const key=wall.gateFor?'gate':wall.hazard?'electric':zone.id==='inferno'?'volcanic':'wall';
+      image(`w${wall.id}`,`terrain-${key}`,wall.x+wall.width/2,wall.y+wall.height/2,wall.gateFor?7:1).setDisplaySize(wall.width,wall.height);
     }
-    for (const c of s.coins) sprite(`c${c.id}`, 'coin', c.x, c.y + Math.sin(s.elapsed * 3 + c.id) * 3, 5).setScale(0.9 + Math.sin(s.elapsed * 4 + c.id) * 0.08, 1);
-    this.marks.clear();
-    for (const e of s.enemies) {
-      const enemy = sprite(`e${e.id}`, e.kind, e.x, e.y + Math.sin(s.elapsed * 2 + e.id) * 5, 6);
-      enemy.setDisplaySize(e.kind === 'oni' ? 86 : 53, e.kind === 'oni' ? 86 : 53);
-      enemy.setAlpha(s.elapsed - e.hitAt < 0.15 ? 0.4 : 1);
-      if (e.kind === 'oni') {
-        this.marks.fillStyle(0x112d37, 0.8).fillRoundedRect(e.x - 26, e.y - s.cameraY - 49, 52, 5, 2);
-        this.marks.fillStyle(0xed9d73).fillRoundedRect(e.x - 26, e.y - s.cameraY - 49, 52 * e.hp / 3, 5, 2);
+    for(const platform of s.platforms){
+      if(platform.broken)continue;
+      const object=image(`p${platform.id}`,`terrain-${PLATFORM_TYPES[platform.kind].texture}`,platform.x,platform.y,3).setOrigin(0.5,TERRAIN_TOP[PLATFORM_TYPES[platform.kind].texture as keyof typeof TERRAIN_TOP]);
+      const width=platform.width+5;
+      object.setDisplaySize(width,Math.min(platform.kind==='arena'?170:72,width*object.frame.realHeight/object.frame.realWidth));
+      object.setAlpha(platform.crumble>0?0.65+Math.sin(s.elapsed*35)*0.2:1);
+    }
+    for(const coin of s.coins)image(`c${coin.id}`,'coin',coin.x,coin.y+Math.sin(s.elapsed*3+coin.id)*3,5).setScale(0.9,1);
+    for(const[id,object]of this.images)if(!alive.has(id)){object.destroy();this.images.delete(id);}
+    const enemiesAlive=new Set<number>();this.cues.clear();
+    for(const enemy of s.enemies){
+      enemiesAlive.add(enemy.id);let sprite=this.enemies.get(enemy.id);
+      const texture=ENEMY_TYPES[enemy.kind].texture;
+      if(!sprite){sprite=this.scene.add.sprite(enemy.x,enemy.y,texture).setOrigin(0.5,235/256).setDepth(6);this.enemies.set(enemy.id,sprite);}
+      sprite.setPosition(enemy.x,enemy.y-s.cameraY+(enemy.kind==='oni'?38:enemy.kind==='moth'?28:26)).setFlipX(enemy.facing<0).setDisplaySize(enemy.kind==='oni'?264:enemy.kind==='moth'?136.5:160.5,enemy.kind==='oni'?176:enemy.kind==='moth'?91:107);
+      const animation=`${texture}-${enemy.reactionLeft>0&&enemy.hp>0?'hurt':enemy.state}`;if(sprite.anims.currentAnim?.key!==animation)sprite.play(animation);
+      if(enemy.state==='windup'){
+        const color=enemy.kind==='oni'?0xffb06c:0xe9cc8e;
+        this.cues.lineStyle(2,color,0.7).strokeCircle(enemy.x,enemy.y-s.cameraY-50,7+Math.sin(s.elapsed*12)*2);
+        const reach=enemy.kind==='oni'?145:65;
+        this.cues.fillStyle(color,0.10+Math.sin(s.elapsed*12)*0.04).fillRect(enemy.facing>0?enemy.x:enemy.x-reach,enemy.y-s.cameraY+25,reach,7);
+      }
+      if(enemy.kind==='oni'&&enemy.hp>0){
+        this.cues.fillStyle(0x0e2632,0.9).fillRoundedRect(enemy.x-48,enemy.y-s.cameraY-105,96,6,3);
+        this.cues.fillStyle(enemy.state==='recover'?0x9de3c0:0xf4bd80).fillRoundedRect(enemy.x-48,enemy.y-s.cameraY-105,96*enemy.hp/6,6,3);
       }
     }
-    for (const [id, image] of this.sprites) { if (!alive.has(id)) { image.destroy(); this.sprites.delete(id); } }
-    this.ninja.setPosition(s.player.x, s.player.y - s.cameraY).setFlipX(s.player.facing < 0);
-    this.ninja.setRotation(Math.max(-0.14, Math.min(0.14, s.player.vx * 0.0005)));
-    this.ninja.setAlpha(s.player.invincible > 0 && Math.floor(s.elapsed * 15) % 2 === 0 ? 0.5 : 1);
-    this.slash.clear();
-    if (s.attackLeft > 0) {
-      const angle = (1 - s.attackLeft / 0.24) * 4;
-      const x = s.player.x, y = s.player.y - s.cameraY;
-      this.slash.lineStyle(10, 0xd9e6c6, 0.14).beginPath().arc(x, y, 101, angle, angle + 2.9).strokePath();
-      this.slash.lineStyle(3, 0xf8e6ba, 0.95).beginPath().arc(x, y, 98, angle + 0.3, angle + 2.5).strokePath();
-      this.slash.lineStyle(1, 0xffffff, 0.9).beginPath().arc(x, y, 92, angle + 0.5, angle + 2.1).strokePath();
+    for(const[id,sprite]of this.enemies)if(!enemiesAlive.has(id)){sprite.destroy();this.enemies.delete(id);}
+    for(const wall of s.walls)if(wall.hazard){
+      const x=wall.x+wall.width/2,y=wall.y-s.cameraY;
+      this.cues.lineStyle(2,0x90ecff,0.8).beginPath().moveTo(x,y);
+      for(let i=1;i<8;i++)this.cues.lineTo(x+Math.sin(s.elapsed*20+i*4)*7,y+wall.height*i/7);
+      this.cues.strokePath();
+    }
+    heroAnimation(this.ninja,`hero-${this.skin}`,p.motion);
+    this.ninja.setPosition(p.x,p.y-s.cameraY+24).setFlipX(p.facing<0).setAlpha(p.invincible>0&&Math.floor(s.elapsed*16)%2===0?0.52:1);
+    this.ninja.setRotation(p.dashLeft>0?Math.atan2(p.dashY,Math.abs(p.dashX))*p.facing:0);
+    const attackAge=RULES.attackDuration-p.attackTime;
+    this.slash.setVisible(p.attackTime>0&&attackAge>=RULES.attackStart&&attackAge<=RULES.attackEnd).setPosition(p.x+p.facing*48,p.y-s.cameraY-7).setFlipX(p.facing<0);
+    if(p.dashLeft>0&&s.elapsed-this.lastGhost>0.028){
+      this.lastGhost=s.elapsed;
+      const ghost=this.scene.add.image(this.ninja.x,this.ninja.y,this.ninja.texture.key,this.ninja.frame.name).setOrigin(0.5,235/256).setDisplaySize(168,112).setFlipX(p.facing<0).setRotation(this.ninja.rotation).setTint(0xd2e9d4).setAlpha(0.3).setDepth(9);
+      this.scene.tweens.add({targets:ghost,alpha:0,duration:190,onComplete:()=>ghost.destroy()});
     }
   }
-  burst(x: number, y: number, color: number) {
-    for (let i = 0; i < 8; i++) {
-      const dot = this.scene.add.rectangle(x, y, 3 + i % 3, 3, color).setDepth(15).setRotation(i);
-      this.scene.tweens.add({ targets: dot, x: x + Math.cos(i * 0.79) * 38, y: y + Math.sin(i * 0.79) * 38, alpha: 0, rotation: i + 3, duration: 420, onComplete: () => dot.destroy() });
+  burst(x:number,y:number,color:number){
+    for(let i=0;i<8;i++){
+      const dot=this.scene.add.image(x,y,'fx-dot').setTint(color).setScale(0.18+i%3*0.08).setDepth(15);
+      this.scene.tweens.add({targets:dot,x:x+Math.cos(i*0.79)*30,y:y+Math.sin(i*0.79)*24,alpha:0,duration:310,onComplete:()=>dot.destroy()});
     }
   }
-  floating(x: number, y: number, label: string, color = '#f3d596') {
-    const text = this.scene.add.text(x, y, label, { fontFamily: 'Arial, sans-serif', fontSize: '19px', fontStyle: 'bold', color, stroke: '#12323a', strokeThickness: 4 }).setOrigin(0.5).setDepth(20);
-    this.scene.tweens.add({ targets: text, y: y - 52, alpha: 0, duration: 900, onComplete: () => text.destroy() });
+  floating(x:number,y:number,label:string,color='#f3d596'){
+    const text=this.scene.add.text(x,y,label,{fontFamily:'Arial, sans-serif',fontSize:'15px',fontStyle:'bold',color,stroke:'#12323a',strokeThickness:3}).setOrigin(0.5).setDepth(20);
+    this.scene.tweens.add({targets:text,y:y-38,alpha:0,duration:650,onComplete:()=>text.destroy()});
   }
 }
