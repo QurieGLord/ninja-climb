@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Ninja Climb
+Name[ru]=Запустить Ninja Climb
+Comment=Запустить игру локально в браузере
+Exec="/home/quriee/Projects/Software/Ninja Climb/start-game.sh"
+Path=/home/quriee/Projects/Software/Ninja Climb
+Icon=/home/quriee/Projects/Software/Ninja Climb/public/favicon.svg
+Terminal=true
+Categories=Game;
+StartupNotify=false
